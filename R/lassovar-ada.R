@@ -70,13 +70,13 @@ function(y,x,ada,mc,ncores)
 
 
 # Lasso adaptive weights using the parameters from Lassovar
-.ada.las.weights<-function(y,x,ada,ic='BIC',mc=NULL,ncores,dfmax,trend)
+.ada.las.weights<-function(y,x,ada,ic='BIC',mc=NULL,ncores,dfmax,,standardize,trend)
 {
 	ada.w	<-list('ada'=ada)
 	gamma	<-1
 	if(is.null(mc))mc<-FALSE
 
-	lv.las	<-.lassovar.eq(y=y,x=x,degf.type=NULL,ada.w=NULL,ic=ic,mc=mc,ncores=ncores,alpha=1,dfmax=dfmax,trend=trend)
+	lv.las	<-.lassovar.eq(y=y,x=x,degf.type=NULL,ada.w=NULL,ic=ic,mc=mc,ncores=ncores,alpha=1,dfmax=dfmax,standardize=standardize,trend=trend)
 	
 	ada.w$b	<-lv.las$coefficients
 	ada.w$w	<-abs(lv.las$coefficients[-1,])^(-gamma)
@@ -89,13 +89,13 @@ function(y,x,ada,mc,ncores)
 
 
 # Ridge regression for adaptive weights. 
-.ada.ridge.weights<-function(y,x,ada,ic='BIC',mc=NULL,ncores,dfmax,trend)
+.ada.ridge.weights<-function(y,x,ada,ic='BIC',mc=NULL,ncores,dfmax,standardize,trend)
 {
 	ada.w	<-list('ada'=ada)
 	gamma	<-1
 	if(is.null(mc))mc<-FALSE
 
-	lv.las	<-.lassovar.eq(y=y,x=x,degf.type=NULL,ada.w=NULL,ic=ic,mc=mc,ncores=ncores,alpha=0,dfmax=dfmax,trend=trend)
+	lv.las	<-.lassovar.eq(y=y,x=x,degf.type=NULL,ada.w=NULL,ic=ic,mc=mc,ncores=ncores,alpha=0,dfmax=dfmax,standardize=standardize,trend=trend)
 	
 	ada.w$b	<-lv.las$coefficients
 	ada.w$w	<-abs(ada.w$b[-1,])^(-gamma)

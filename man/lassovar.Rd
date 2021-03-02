@@ -6,7 +6,7 @@
 \usage{
 lassovar(dat, exo = NULL, lags = 1, ic = c("BIC", "AIC"),
   adaptive = c("none", "ols", "lasso", "group", "ridge"), post = FALSE,
-  mc = FALSE, ncores = NULL, dfmax = NULL, horizon = 1, trend = FALSE)
+  mc = FALSE, ncores = NULL, dfmax = NULL, standardize = TRUE, horizon = 1, trend = FALSE)
 }
 \arguments{
 \item{dat}{a data.frame containing the series.}
@@ -26,6 +26,8 @@ lassovar(dat, exo = NULL, lags = 1, ic = c("BIC", "AIC"),
 \item{ncores}{Optional, the number of cores to use in case of parallelization.}
 
 \item{dfmax}{Optional, the maximum number of variables in the model excluding the intercept. An option of glmnet, it exits the algorithm when the penalty is small enough that more than dmax variables are included in the model. Incresease the speed tremendously for large VARs.}
+
+\item{standardize}{glmnet option to standardize x variables. Default is TRUE.}
 
 \item{horizon}{Estimate a h-step ahead VAR, useful for direct forecasting. Default = 1.}
 
