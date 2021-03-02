@@ -70,7 +70,7 @@ function(y,x,ada,mc,ncores)
 
 
 # Lasso adaptive weights using the parameters from Lassovar
-.ada.las.weights<-function(y,x,ada,ic='BIC',mc=NULL,ncores,dfmax,,standardize,trend)
+.ada.las.weights<-function(y,x,ada,ic='BIC',mc=NULL,ncores,dfmax,standardize,trend)
 {
 	ada.w	<-list('ada'=ada)
 	gamma	<-1
