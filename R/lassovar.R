@@ -11,6 +11,7 @@
 #' @param mc Optional, default to FALSE. Should the equation-by-equation estimation be parallelized using mclapply from the parallel package?
 #' @param ncores Optional, the number of cores to use in case of parallelization.
 #' @param dfmax Optional, the maximum number of variables in the model excluding the intercept. An option of glmnet, it exits the algorithm when the penalty is small enough that more than dmax variables are included in the model. Incresease the speed tremendously for large VARs.
+#' @param nlambda The number of lambda values - default is 100
 #' @param standardize glmnet option to standardize x variables. Default is TRUE.
 #' @param post Optional, Should a post Lasso OLS be estimated, default FALSE.
 #' @param horizon Estimate a h-step ahead VAR, useful for direct forecasting. Default = 1.
@@ -41,7 +42,7 @@
 #' }
 #'
 #' @export
-lassovar<-function(dat,exo=NULL,lags=1,ic=c('BIC','AIC'),adaptive=c('none','ols','lasso','group','ridge'),post=FALSE,mc=FALSE,ncores=NULL,dfmax=NULL,standardize=TRUE,horizon=1,trend=FALSE)
+lassovar<-function(dat,exo=NULL,lags=1,ic=c('BIC','AIC'),adaptive=c('none','ols','lasso','group','ridge'),post=FALSE,mc=FALSE,ncores=NULL,dfmax=NULL,nlambda=NULL,standardize=TRUE,horizon=1,trend=FALSE)
 {
 	
 	# matching the multiple choice arguments. 
@@ -64,22 +65,25 @@ lassovar<-function(dat,exo=NULL,lags=1,ic=c('BIC','AIC'),adaptive=c('none','ols'
 	
 	# maxdegrees of freedom ?	
 	if(!is.null(dfmax))dfmax<-as.integer(dfmax)	else dfmax	<-ncol(dat)*lags
+	
+	# nlambda ?	
+	if(!is.null(nlambda))nlambda<-as.integer(nlambda)	else nlambda	<-100
 
 	y.var	<-.mkvar(dat,lags=lags,horizon=1,exo=exo,trend=trend)	
 	
 	if(adaptive!='none'){
 		cat('initial estimator for the adapive lasso: ',adaptive,'\n',sep='')
 		for(a in adaptive){
-			if(a=='lasso')	ada.w<-.ada.las.weights(y.var$y,y.var$x,a,ic=ic,mc=mc,ncores=ncores,dfmax=dfmax,standardize=standardize,trend=trend)
+			if(a=='lasso')	ada.w<-.ada.las.weights(y.var$y,y.var$x,a,ic=ic,mc=mc,ncores=ncores,dfmax=dfmax,nlambda=nlambda,standardize=standardize,trend=trend)
 			if(a=='ols')	ada.w<-.ada.ols.weights(y.var$y,y.var$x,a,mc=mc,ncores=ncores)
-			if(a=='ridge')	ada.w<-.ada.ridge.weights(y.var$y,y.var$x,a,mc=mc,ncores=ncores,dfmax=dfmax,standardize=standardize,trend=trend)
+			if(a=='ridge')	ada.w<-.ada.ridge.weights(y.var$y,y.var$x,a,mc=mc,ncores=ncores,dfmax=dfmax,nlambda=nlambda,standardize=standardize,trend=trend)
 			if(a=='group')	ada.w<-.ada.grp.weights(y.var$y,y.var$x,a,trend)
 		}
 	}
 	else ada.w<-NULL
 	
 	#cat('Estimating the Final Lasso: ','\n',sep='')
-	las.mod<-.lassovar.eq(y.var$y,y.var$x,ada.w,ic=ic,mc=mc,ncores=ncores,dfmax=dfmax,standardize=standardize,trend=trend)
+	las.mod<-.lassovar.eq(y.var$y,y.var$x,ada.w,ic=ic,mc=mc,ncores=ncores,dfmax=dfmax,nlambda=nlambda,standardize=standardize,trend=trend)
 
 
 	if(post){	las.mod$post <- .post.ols(y.var$y,y.var$x,sel.pars=las.mod$coefficients!=0,mc=mc,ncores=ncores)}		
